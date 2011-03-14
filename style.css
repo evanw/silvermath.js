@@ -1,0 +1,5 @@
+body > * {
+	border: 1px solid #EFEFEF;
+	margin: 20px;
+	float: left;
+}

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html><head>
+	<title>Equation Editor</title>
+	<script type="text/javascript" src="generated.js"></script>
+	<script type="text/javascript">
+
+var equ;
+var cursor;
+var renderer;
+var interval;
+
+function resetCursor() {
+	cursor = true;
+	redrawCursor();
+	clearInterval(interval);
+	interval = setInterval(redrawCursor, 500);
+}
+
+function redrawCursor() {
+	equ.render(renderer, cursor);
+	cursor = !cursor;
+}
+
+window.onkeydown = function(e) {
+	if (e.which == 37) {
+		if (--equ.cursorIndex < 0) equ.cursorIndex = 0;
+		resetCursor();
+	} else if (e.which == 39) {
+		if (++equ.cursorIndex >= equ.container.anchorCount) equ.cursorIndex = equ.container.anchorCount - 1;
+		resetCursor();
+	}
+};
+
+window.onload = function() {
+	var canvas = document.createElement('canvas');
+	document.body.appendChild(canvas);
+	canvas.width = 400;
+	equ = new math.Equation();
+	renderer = new math.CanvasRenderer(canvas);
+	resetCursor();
+};
+
+	</script>
+	<link type="text/css" href="style.css" rel="stylesheet">
+</head><body>
+</body></html>
