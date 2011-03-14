@@ -1,59 +1,6 @@
 var eq = (function() {
 var exports = {};
 
-// src/core/anchor.js
-function Anchor(equation, index) {
-	this.equation = equation;
-	this.index = index;
-}
-
-Anchor.prototype.render = function(renderer) {
-	if (this.index < 0 || this.index >= this.equation.container.anchorCount) {
-		return;
-	}
-	
-	var index = 0;
-	var node = this.equation.container;
-	
-	while (index <= this.index) {
-		if (node instanceof Container) {
-			var x = node.box.x;
-			
-			// check the spot before the first child
-			if (this.index == index++) {
-				renderer.drawLine(x, node.box.y, x, node.box.y + node.box.getHeight());
-				return;
-			}
-			
-			for (var i = 0; i < node.children.length; i++) {
-				// check in this child
-				var child = node.children[i];
-				if (this.index < index + child.anchorCount) {
-					node = node.children[i];
-					break;
-				}
-				x += child.box.width;
-				index += child.anchorCount;
-				
-				// check the spot after this child
-				if (this.index == index++) {
-					renderer.drawLine(x, node.box.y, x, node.box.y + node.box.getHeight());
-					return;
-				}
-			}
-		} else if (node instanceof Fraction) {
-			if (this.index < index + node.top.anchorCount) {
-				node = node.top;
-			} else {
-				index += node.top.anchorCount;
-				node = node.bottom;
-			}
-		} else {
-			break;
-		}
-	}
-};
-
 // src/core/box.js
 function Box(x, y, width, heightAboveMidline, heightBelowMidline) {
 	this.x = x;
@@ -128,19 +75,29 @@ function Equation() {
 	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
 	frac.top.children.push(new Symbol('2', SANS_SERIF));
 	frac.bottom.children.push(new Symbol('5', SANS_SERIF));
+	frac.bottom.children.push(new Symbol('  \u2212  ', SANS_SERIF));
+	var frac2 = new Fraction();
+	frac2.top.children.push(new Symbol('2', SANS_SERIF));
+	frac2.bottom.children.push(new Symbol('3', SANS_SERIF));
+	frac.bottom.children.push(frac2);
 	this.container.children.push(frac);
-	
-	this.container.children.push(new Symbol('  +  ', SANS_SERIF));
 	
 	frac = new Fraction();
 	frac.top.children.push(new Symbol('4', SANS_SERIF));
 	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
 	frac.top.children.push(new Symbol('7', SANS_SERIF));
+	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
+	frac2 = new Fraction();
+	frac2.top.children.push(new Symbol('2', SANS_SERIF));
+	frac2.bottom.children.push(new Symbol('3', SANS_SERIF));
+	frac.top.children.push(frac2);
 	frac.bottom.children.push(new Symbol('2', SANS_SERIF));
 	this.container.children.push(frac);
 	
 	this.cursorIndex = 0;
+	this.maxCursorIndex = 0;
 	this.container.updateAnchorCount();
+	this.maxCursorIndex = this.container.anchorCount - 1;
 }
 
 Equation.prototype.render = function(renderer, shouldRenderCursor) {
@@ -148,8 +105,18 @@ Equation.prototype.render = function(renderer, shouldRenderCursor) {
 	this.container.layout(2, 2);
 	renderer.begin(this.container.box.width + 4, this.container.box.getHeight() + 4);
 	this.container.render(renderer);
-	if (shouldRenderCursor) new Anchor(this, this.cursorIndex).render(renderer);
+	if (shouldRenderCursor) {
+		var anchor = createAnchor(this.container);
+		anchor.setIndex(this.cursorIndex);
+		anchor.renderCursor(renderer);
+	}
 	renderer.end();
+};
+
+Equation.prototype.setCursorIndexFromPoint = function(x, y) {
+	var anchor = createAnchor(this.container);
+	anchor.setIndexFromPoint(x, y);
+	this.cursorIndex = anchor.index;
 };
 
 exports['Equation'] = Equation;
@@ -186,7 +153,7 @@ Fraction.prototype.layout = function(x, y) {
 Fraction.prototype.render = function(renderer) {
 	this.top.render(renderer);
 	this.bottom.render(renderer);
-	renderer.drawLine(this.box.x, this.box.y + this.box.heightAboveMidline, this.box.x + this.box.width, this.box.y + this.box.heightAboveMidline);
+	renderer.drawLine(this.box.x + 2, this.box.y + this.box.heightAboveMidline, this.box.x + this.box.width - 2, this.box.y + this.box.heightAboveMidline);
 };
 
 // src/core/symbol.js
@@ -217,6 +184,116 @@ Symbol.prototype.layout = function(x, y) {
 Symbol.prototype.render = function(renderer) {
 	renderer.fontStyle = this.fontStyle;
 	renderer.drawText(this.text, this.box.x, this.box.y);
+};
+
+// src/interaction/anchor.js
+function createAnchor(node) {
+	if (node instanceof Container) {
+		return new ContainerAnchor(node);
+	} else if (node instanceof Fraction) {
+		return new FractionAnchor(node);
+	} else {
+		return null;
+	}
+}
+
+// src/interaction/containeranchor.js
+function ContainerAnchor(container) {
+	this.index = null;
+	this.childAnchor = null;
+	this.container = container;
+	this.betweenIndex = null;
+}
+
+ContainerAnchor.prototype.setIndex = function(index) {
+	this.index = index;
+	
+	// An anchor instance if index is inside a child, otherwise null (in which case index is between two children)
+	this.childAnchor = null;
+	
+	for (var i = 0; i < this.container.children.length; i++) {
+		var node = this.container.children[i];
+		if (index-- <= 0) {
+			break;
+		} else if (index < node.anchorCount) {
+			this.childAnchor = createAnchor(node);
+			this.childAnchor.setIndex(index);
+			break;
+		} else {
+			index -= node.anchorCount;
+		}
+	}
+	
+	// The index of the anchor if index is between two children (only relevant if childAnchor == null)
+	this.betweenIndex = i;
+};
+
+ContainerAnchor.prototype.renderCursor = function(renderer) {
+	if (this.childAnchor) {
+		this.childAnchor.renderCursor(renderer);
+	} else {
+		var x;
+		if (this.betweenIndex < this.container.children.length) {
+			x = this.container.children[this.betweenIndex].box.x;
+		} else {
+			x = this.container.box.x + this.container.box.width;
+		}
+		renderer.drawLine(x, this.container.box.y, x, this.container.box.y + this.container.box.getHeight());
+	}
+};
+
+ContainerAnchor.prototype.setIndexFromPoint = function(x, y) {
+	var index = 0;
+	for (var i = 0; i < this.container.children.length; i++) {
+		var node = this.container.children[i];
+		if (x < node.box.x + node.box.width) {
+			var anchor = createAnchor(node);
+			if (anchor != null && x > node.box.x + 2 && x < node.box.x + node.box.width - 2) {
+				anchor.setIndexFromPoint(x, y);
+				index += anchor.index + 1;
+			} else if (x > node.box.x + node.box.width / 2) {
+				index += node.anchorCount + 1;
+			}
+			break;
+		}
+		index += node.anchorCount + 1;
+	}
+	this.setIndex(index);
+};
+
+// src/interaction/fractionanchor.js
+function FractionAnchor(fraction) {
+	this.index = null;
+	this.childAnchor = null;
+	this.fraction = fraction;
+}
+
+FractionAnchor.prototype.setIndex = function(index) {
+	this.index = index;
+	
+	if (index < this.fraction.top.anchorCount) {
+		this.childAnchor = createAnchor(this.fraction.top);
+		this.childAnchor.setIndex(index);
+	} else {
+		this.childAnchor = createAnchor(this.fraction.bottom);
+		this.childAnchor.setIndex(index - this.fraction.top.anchorCount);
+	}
+};
+
+FractionAnchor.prototype.renderCursor = function(renderer) {
+	this.childAnchor.renderCursor(renderer);
+};
+
+FractionAnchor.prototype.setIndexFromPoint = function(x, y) {
+	if (y < this.fraction.box.y + this.fraction.box.heightAboveMidline) {
+		this.childAnchor = createAnchor(this.fraction.top);
+		this.childAnchor.setIndexFromPoint(x, y);
+		this.index = this.childAnchor.index;
+	} else {
+		this.childAnchor = createAnchor(this.fraction.bottom);
+		this.childAnchor.setIndexFromPoint(x, y);
+		this.index = this.fraction.top.anchorCount + this.childAnchor.index;
+	}
 };
 
 // src/renderers/canvasrenderer.js

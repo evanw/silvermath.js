@@ -4,6 +4,7 @@
 	<script type="text/javascript" src="equation.js"></script>
 	<script type="text/javascript">
 
+var canvas;
 var equation;
 var cursor;
 var renderer;
@@ -18,25 +19,47 @@ function resetCursor() {
 
 function redrawCursor() {
 	equation.render(renderer, cursor);
-	cursor = !cursor;
+	if (!dragging) cursor = !cursor;
 }
 
 window.onkeydown = function(e) {
 	if (e.which == 37) {
-		if (--equation.cursorIndex < 0) equation.cursorIndex = 0;
+		equation.cursorIndex = Math.max(equation.cursorIndex - 1, 0);
 		resetCursor();
 	} else if (e.which == 39) {
-		if (++equation.cursorIndex >= equation.container.anchorCount) equation.cursorIndex = equation.container.anchorCount - 1;
+		equation.cursorIndex = Math.min(equation.cursorIndex + 1, equation.maxCursorIndex);
 		resetCursor();
 	}
 };
 
 window.onload = function() {
-	var canvas = document.createElement('canvas');
+	canvas = document.createElement('canvas');
 	document.body.appendChild(canvas);
 	canvas.width = 400;
 	equation = new eq.Equation();
 	renderer = new eq.CanvasRenderer(canvas);
+	resetCursor();
+};
+
+function mouse(e) {
+	equation.setCursorIndexFromPoint(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
+	resetCursor();
+}
+
+var dragging = false;
+
+document.onmousedown = function(e) {
+	dragging = true;
+	mouse(e);
+};
+
+document.onmousemove = function(e) {
+	if (dragging) mouse(e);
+};
+
+document.onmouseup = function(e) {
+	mouse(e);
+	dragging = false;
 	resetCursor();
 };
 
