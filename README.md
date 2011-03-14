@@ -1,6 +1,6 @@
 # equation.js
 
-This will be a high-quality equation editor/renderer in JavaScript. To see the current version, please visit the [demo page](http://evanw.github.com/equation.js/).
+This will be a high-quality equation editor/renderer in JavaScript. To see the current version, please visit the [demo page](http://evanw.github.com/silvermath.js/).
 
 ## Goals
 
