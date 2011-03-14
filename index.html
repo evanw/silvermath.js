@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html><head>
 	<title>Equation Editor</title>
-	<script type="text/javascript" src="generated.js"></script>
+	<script type="text/javascript" src="equation.js"></script>
 	<script type="text/javascript">
 
-var equ;
+var equation;
 var cursor;
 var renderer;
 var interval;
@@ -17,16 +17,16 @@ function resetCursor() {
 }
 
 function redrawCursor() {
-	equ.render(renderer, cursor);
+	equation.render(renderer, cursor);
 	cursor = !cursor;
 }
 
 window.onkeydown = function(e) {
 	if (e.which == 37) {
-		if (--equ.cursorIndex < 0) equ.cursorIndex = 0;
+		if (--equation.cursorIndex < 0) equation.cursorIndex = 0;
 		resetCursor();
 	} else if (e.which == 39) {
-		if (++equ.cursorIndex >= equ.container.anchorCount) equ.cursorIndex = equ.container.anchorCount - 1;
+		if (++equation.cursorIndex >= equation.container.anchorCount) equation.cursorIndex = equation.container.anchorCount - 1;
 		resetCursor();
 	}
 };
@@ -35,8 +35,8 @@ window.onload = function() {
 	var canvas = document.createElement('canvas');
 	document.body.appendChild(canvas);
 	canvas.width = 400;
-	equ = new math.Equation();
-	renderer = new math.CanvasRenderer(canvas);
+	equation = new eq.Equation();
+	renderer = new eq.CanvasRenderer(canvas);
 	resetCursor();
 };
 
