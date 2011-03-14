@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html><head>
 	<title>Equation Editor</title>
-	<script type="text/javascript" src="equation.js"></script>
+	<script type="text/javascript" src="silvermath.js"></script>
 	<script type="text/javascript">
 
 var canvas;
@@ -36,8 +36,8 @@ window.onload = function() {
 	canvas = document.createElement('canvas');
 	document.body.appendChild(canvas);
 	canvas.width = 400;
-	equation = new eq.Equation();
-	renderer = new eq.CanvasRenderer(canvas);
+	equation = new silver.Equation();
+	renderer = new silver.CanvasRenderer(canvas);
 	resetCursor();
 };
 
@@ -64,6 +64,10 @@ document.onmouseup = function(e) {
 };
 
 	</script>
-	<link type="text/css" href="style.css" rel="stylesheet">
+	<style type="text/css">
+
+body { cursor: text; }
+
+	</style>
 </head><body>
 </body></html>

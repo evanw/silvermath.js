@@ -1,4 +1,4 @@
-var eq = (function() {
+var silver = (function() {
 var exports = {};
 
 // src/core/box.js
