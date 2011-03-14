@@ -29,5 +29,5 @@ Fraction.prototype.layout = function(x, y) {
 Fraction.prototype.render = function(renderer) {
 	this.top.render(renderer);
 	this.bottom.render(renderer);
-	renderer.drawLine(this.box.x, this.box.y + this.box.heightAboveMidline, this.box.x + this.box.width, this.box.y + this.box.heightAboveMidline);
+	renderer.drawLine(this.box.x + 2, this.box.y + this.box.heightAboveMidline, this.box.x + this.box.width - 2, this.box.y + this.box.heightAboveMidline);
 };
