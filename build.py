@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-module = 'eq'
+module = 'silver'
 input_path = 'src/'
-output_path = 'equation.js'
+output_path = 'silvermath.js'
 
 import re, os, sys, time
 
