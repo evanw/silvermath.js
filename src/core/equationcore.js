@@ -31,24 +31,21 @@ EquationCore.prototype.render = function(renderer, shouldRenderCursor) {
 	renderer.begin(this.container.box.width + 4, this.container.box.getHeight() + 4);
 
 	if (shouldRenderCursor) {
-		var cursorAnchor = createAnchor(this.container);
-		cursorAnchor.setIndex(this.cursorIndex);
-
-		var selectionAnchor = createAnchor(this.container);
-		selectionAnchor.setIndex(this.selectionIndex);
+		var cursorAnchor = createAnchor(this.container).setIndex(this.cursorIndex);
+		var selectionAnchor = createAnchor(this.container).setIndex(this.selectionIndex);
 
 		// Render the selection
-		var box = getBoxAroundAnchors(cursorAnchor, selectionAnchor);
+		var box = getSelectionAroundAnchors(cursorAnchor, selectionAnchor);
 		if (box) {
 			renderer.drawRect(box.x, box.y, box.width, box.getHeight());
 		}
 
 		// Render the selection anchor (for debugging)
-		var box = selectionAnchor.getCursorBox();
+		var box = selectionAnchor.getBox();
 		renderer.drawLine(box.x, box.y, box.x, box.y + box.getHeight());
 
 		// Render the main cursor
-		var box = cursorAnchor.getCursorBox();
+		var box = cursorAnchor.getBox();
 		renderer.drawLine(box.x, box.y, box.x, box.y + box.getHeight());
 	}
 

@@ -8,16 +8,17 @@ FractionAnchor.prototype.setIndex = function(index) {
 	this.index = index;
 	
 	if (index < this.node.top.anchorCount) {
-		this.childAnchor = createAnchor(this.node.top);
-		this.childAnchor.setIndex(index);
+		this.childAnchor = createAnchor(this.node.top).setIndex(index);
 	} else {
-		this.childAnchor = createAnchor(this.node.bottom);
-		this.childAnchor.setIndex(index - this.node.top.anchorCount);
+		this.childAnchor = createAnchor(this.node.bottom).setIndex(index - this.node.top.anchorCount);
 	}
+
+	// Allow chaining
+	return this;
 };
 
-FractionAnchor.prototype.getCursorBox = function() {
-	return this.childAnchor.getCursorBox();
+FractionAnchor.prototype.getBox = function() {
+	return this.childAnchor.getBox();
 };
 
 FractionAnchor.prototype.setIndexFromPoint = function(x, y) {

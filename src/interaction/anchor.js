@@ -8,7 +8,7 @@ function createAnchor(node) {
 	}
 }
 
-function getBoxAroundAnchors(a, b) {
+function getSelectionAroundAnchors(a, b) {
 	// Move down the anchor chain until the anchors diverge
 	while (a.childAnchor && b.childAnchor && a.depthEquals(b)) {
 		a = a.childAnchor;
@@ -16,8 +16,8 @@ function getBoxAroundAnchors(a, b) {
 	}
 
 	// Cursors are in the same container but at different indices
-	var boxA = a.childAnchor ? a.childAnchor.node.box : a.getCursorBox();
-	var boxB = b.childAnchor ? b.childAnchor.node.box : b.getCursorBox();
+	var boxA = a.childAnchor ? a.childAnchor.node.box : a.getBox();
+	var boxB = b.childAnchor ? b.childAnchor.node.box : b.getBox();
 	var minX = Math.min(boxA.x, boxB.x);
 	var maxX = Math.max(boxA.x + boxA.width, boxB.x + boxB.width);
 	return new Box(minX, a.node.box.y, maxX - minX, a.node.box.heightAboveMidline, a.node.box.heightBelowMidline);

@@ -30,10 +30,20 @@ CanvasRenderer.prototype.measureText = function(text) {
 };
 
 CanvasRenderer.prototype.drawLine = function(x1, y1, x2, y2) {
+	var x = y1 - y2;
+	var y = x2 - x1;
+	var d = 0.5 / Math.sqrt(x * x + y * y);
+	if (x + y < 0) {
+		d = -d;
+	}
+	x1 += x * d;
+	y1 += y * d;
+	x2 += x * d;
+	y2 += y * d;
 	this._context.strokeStyle = 'black';
 	this._context.beginPath();
-	this._context.lineTo(x1 + 0.5, y1 + 0.5);
-	this._context.lineTo(x2 + 0.5, y2 + 0.5);
+	this._context.lineTo(x1, y1);
+	this._context.lineTo(x2, y2);
 	this._context.stroke();
 };
 

@@ -16,8 +16,7 @@ ContainerAnchor.prototype.setIndex = function(index) {
 		if (index-- <= 0) {
 			break;
 		} else if (index < node.anchorCount) {
-			this.childAnchor = createAnchor(node);
-			this.childAnchor.setIndex(index);
+			this.childAnchor = createAnchor(node).setIndex(index);
 			break;
 		} else {
 			index -= node.anchorCount;
@@ -26,13 +25,17 @@ ContainerAnchor.prototype.setIndex = function(index) {
 	
 	// The index of the anchor if index is between two children (only relevant if childAnchor == null)
 	this.betweenIndex = i;
+
+	// Allow chaining
+	return this;
 };
 
-ContainerAnchor.prototype.getCursorBox = function() {
+ContainerAnchor.prototype.getBox = function() {
 	if (this.childAnchor) {
-		return this.childAnchor.getCursorBox();
+		return this.childAnchor.getBox();
 	}
 
+	// Cursor is between children
 	var x;
 	if (this.betweenIndex < this.node.children.length) {
 		x = this.node.children[this.betweenIndex].box.x;
