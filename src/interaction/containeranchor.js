@@ -1,7 +1,7 @@
-function ContainerAnchor(container) {
+function ContainerAnchor(node) {
+	this.node = node;
 	this.index = null;
 	this.childAnchor = null;
-	this.container = container;
 	this.betweenIndex = null;
 }
 
@@ -11,8 +11,8 @@ ContainerAnchor.prototype.setIndex = function(index) {
 	// An anchor instance if index is inside a child, otherwise null (in which case index is between two children)
 	this.childAnchor = null;
 	
-	for (var i = 0; i < this.container.children.length; i++) {
-		var node = this.container.children[i];
+	for (var i = 0; i < this.node.children.length; i++) {
+		var node = this.node.children[i];
 		if (index-- <= 0) {
 			break;
 		} else if (index < node.anchorCount) {
@@ -28,24 +28,24 @@ ContainerAnchor.prototype.setIndex = function(index) {
 	this.betweenIndex = i;
 };
 
-ContainerAnchor.prototype.renderCursor = function(renderer) {
+ContainerAnchor.prototype.getCursorBox = function() {
 	if (this.childAnchor) {
-		this.childAnchor.renderCursor(renderer);
-	} else {
-		var x;
-		if (this.betweenIndex < this.container.children.length) {
-			x = this.container.children[this.betweenIndex].box.x;
-		} else {
-			x = this.container.box.x + this.container.box.width;
-		}
-		renderer.drawLine(x, this.container.box.y, x, this.container.box.y + this.container.box.getHeight());
+		return this.childAnchor.getCursorBox();
 	}
+
+	var x;
+	if (this.betweenIndex < this.node.children.length) {
+		x = this.node.children[this.betweenIndex].box.x;
+	} else {
+		x = this.node.box.x + this.node.box.width;
+	}
+	return new Box(x, this.node.box.y, 0, this.node.box.heightAboveMidline, this.node.box.heightBelowMidline);
 };
 
 ContainerAnchor.prototype.setIndexFromPoint = function(x, y) {
 	var index = 0;
-	for (var i = 0; i < this.container.children.length; i++) {
-		var node = this.container.children[i];
+	for (var i = 0; i < this.node.children.length; i++) {
+		var node = this.node.children[i];
 		if (x < node.box.x + node.box.width) {
 			var anchor = createAnchor(node);
 			if (anchor != null && x > node.box.x + 2 && x < node.box.x + node.box.width - 2) {
@@ -59,4 +59,9 @@ ContainerAnchor.prototype.setIndexFromPoint = function(x, y) {
 		index += node.anchorCount + 1;
 	}
 	this.setIndex(index);
+};
+
+ContainerAnchor.prototype.depthEquals = function(other) {
+	return other instanceof ContainerAnchor && this.betweenIndex == other.betweenIndex &&
+		(this.childAnchor == other.childAnchor || this.childAnchor.depthEquals(other.childAnchor));
 };

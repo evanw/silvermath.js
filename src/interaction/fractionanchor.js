@@ -1,33 +1,37 @@
-function FractionAnchor(fraction) {
+function FractionAnchor(node) {
+	this.node = node;
 	this.index = null;
 	this.childAnchor = null;
-	this.fraction = fraction;
 }
 
 FractionAnchor.prototype.setIndex = function(index) {
 	this.index = index;
 	
-	if (index < this.fraction.top.anchorCount) {
-		this.childAnchor = createAnchor(this.fraction.top);
+	if (index < this.node.top.anchorCount) {
+		this.childAnchor = createAnchor(this.node.top);
 		this.childAnchor.setIndex(index);
 	} else {
-		this.childAnchor = createAnchor(this.fraction.bottom);
-		this.childAnchor.setIndex(index - this.fraction.top.anchorCount);
+		this.childAnchor = createAnchor(this.node.bottom);
+		this.childAnchor.setIndex(index - this.node.top.anchorCount);
 	}
 };
 
-FractionAnchor.prototype.renderCursor = function(renderer) {
-	this.childAnchor.renderCursor(renderer);
+FractionAnchor.prototype.getCursorBox = function() {
+	return this.childAnchor.getCursorBox();
 };
 
 FractionAnchor.prototype.setIndexFromPoint = function(x, y) {
-	if (y < this.fraction.box.y + this.fraction.box.heightAboveMidline) {
-		this.childAnchor = createAnchor(this.fraction.top);
+	if (y < this.node.box.y + this.node.box.heightAboveMidline) {
+		this.childAnchor = createAnchor(this.node.top);
 		this.childAnchor.setIndexFromPoint(x, y);
 		this.index = this.childAnchor.index;
 	} else {
-		this.childAnchor = createAnchor(this.fraction.bottom);
+		this.childAnchor = createAnchor(this.node.bottom);
 		this.childAnchor.setIndexFromPoint(x, y);
-		this.index = this.fraction.top.anchorCount + this.childAnchor.index;
+		this.index = this.node.top.anchorCount + this.childAnchor.index;
 	}
+};
+
+FractionAnchor.prototype.depthEquals = function(other) {
+	return other instanceof FractionAnchor && this.childAnchor.node == other.childAnchor.node;
 };

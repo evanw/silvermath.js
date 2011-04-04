@@ -37,6 +37,11 @@ CanvasRenderer.prototype.drawLine = function(x1, y1, x2, y2) {
 	this._context.stroke();
 };
 
+CanvasRenderer.prototype.drawRect = function(x, y, w, h) {
+	this._context.fillStyle = '#BFDFFF';
+	this._context.fillRect(x, y, w, h);
+};
+
 CanvasRenderer.prototype.end = function() {
 	if (this.subpixel) {
 		var oldData = this._context.getImageData(0, 0, this._context.canvas.width, this._context.canvas.height);
