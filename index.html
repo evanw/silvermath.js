@@ -4,64 +4,7 @@
 	<script type="text/javascript" src="silvermath.js"></script>
 	<script type="text/javascript">
 
-var canvas;
-var equation;
-var cursor;
-var renderer;
-var interval;
-
-function resetCursor() {
-	cursor = true;
-	redrawCursor();
-	clearInterval(interval);
-	interval = setInterval(redrawCursor, 500);
-}
-
-function redrawCursor() {
-	equation.render(renderer, cursor);
-	if (!dragging) cursor = !cursor;
-}
-
-window.onkeydown = function(e) {
-	if (e.which == 37) {
-		equation.cursorIndex = Math.max(equation.cursorIndex - 1, 0);
-		resetCursor();
-	} else if (e.which == 39) {
-		equation.cursorIndex = Math.min(equation.cursorIndex + 1, equation.maxCursorIndex);
-		resetCursor();
-	}
-};
-
-window.onload = function() {
-	canvas = document.createElement('canvas');
-	document.body.appendChild(canvas);
-	canvas.width = 400;
-	equation = new silver.Equation();
-	renderer = new silver.CanvasRenderer(canvas);
-	resetCursor();
-};
-
-function mouse(e) {
-	equation.setCursorIndexFromPoint(e.pageX - canvas.offsetLeft, e.pageY - canvas.offsetTop);
-	resetCursor();
-}
-
-var dragging = false;
-
-document.onmousedown = function(e) {
-	dragging = true;
-	mouse(e);
-};
-
-document.onmousemove = function(e) {
-	if (dragging) mouse(e);
-};
-
-document.onmouseup = function(e) {
-	mouse(e);
-	dragging = false;
-	resetCursor();
-};
+window.onload = silver.main;
 
 	</script>
 	<style type="text/css">
