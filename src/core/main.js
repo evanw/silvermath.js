@@ -72,15 +72,20 @@ function main() {
 	var END = 35;
 	
 	document.onkeydown = function(e) {
+		var valid = true;
+		if (e.shiftKey) core.isKeyboardSelect = true;
 		if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
 		else if (e.keyCode == DELETE) core.removeNodeDelta(1);
-		else if (e.keyCode == LEFT) core.moveCursorDelta(-1);
-		else if (e.keyCode == RIGHT) core.moveCursorDelta(1);
-		else if (e.keyCode == HOME) core.moveCursorDelta(Number.NEGATIVE_INFINITY);
-		else if (e.keyCode == END) core.moveCursorDelta(Number.POSITIVE_INFINITY);
-		else return;
-		draw();
-		e.preventDefault();
+		else if (e.keyCode == LEFT) core.moveCursorRelative(-1);
+		else if (e.keyCode == RIGHT) core.moveCursorRelative(1);
+		else if (e.keyCode == HOME) core.moveCursorAbsolute(0);
+		else if (e.keyCode == END) core.moveCursorAbsolute(core.getLastIndex());
+		else valid = false;
+		core.isKeyboardSelect = false;
+		if (valid) {
+			draw();
+			e.preventDefault();
+		}
 	};
 }
 

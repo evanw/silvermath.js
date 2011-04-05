@@ -30,6 +30,10 @@ function Range(container, indexA, indexB) {
 	this.maxIndex = this.minIndex + totalAnchorCount(this.container, this.lo, this.hi);
 }
 
+Range.prototype.equals = function(other) {
+	return this.container == other.container && this.lo == other.lo && this.hi == other.hi;
+};
+
 Range.prototype.getBox = function() {
 	var box = this.container.box;
 	var loX = (this.lo < this.container.children.length) ? this.container.children[this.lo].box.x : box.x + box.width;
