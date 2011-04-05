@@ -23,6 +23,13 @@ Container.prototype.calculateSize = function(renderer) {
 		this.box.heightAboveMidline = Math.max(this.box.heightAboveMidline, child.box.heightAboveMidline);
 		this.box.heightBelowMidline = Math.max(this.box.heightBelowMidline, child.box.heightBelowMidline);
 	}
+	
+	// If the container is empty, leave some height for the cursor
+	if (this.children.length == 0) {
+		var size = renderer.measureText(' ');
+		this.box.heightAboveMidline = size.heightAboveMidline;
+		this.box.heightBelowMidline = size.heightBelowMidline;
+	}
 };
 
 Container.prototype.layout = function(x, y) {

@@ -30,21 +30,6 @@ ContainerAnchor.prototype.setIndex = function(index) {
 	return this;
 };
 
-ContainerAnchor.prototype.getBox = function() {
-	if (this.childAnchor) {
-		return this.childAnchor.getBox();
-	}
-
-	// Cursor is between children
-	var x;
-	if (this.betweenIndex < this.node.children.length) {
-		x = this.node.children[this.betweenIndex].box.x;
-	} else {
-		x = this.node.box.x + this.node.box.width;
-	}
-	return new Box(x, this.node.box.y, 0, this.node.box.heightAboveMidline, this.node.box.heightBelowMidline);
-};
-
 ContainerAnchor.prototype.setIndexFromPoint = function(x, y) {
 	var index = 0;
 	for (var i = 0; i < this.node.children.length; i++) {

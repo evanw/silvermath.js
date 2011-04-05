@@ -17,10 +17,6 @@ FractionAnchor.prototype.setIndex = function(index) {
 	return this;
 };
 
-FractionAnchor.prototype.getBox = function() {
-	return this.childAnchor.getBox();
-};
-
 FractionAnchor.prototype.setIndexFromPoint = function(x, y) {
 	if (y < this.node.box.y + this.node.box.heightAboveMidline) {
 		this.childAnchor = createAnchor(this.node.top);

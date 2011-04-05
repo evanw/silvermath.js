@@ -20,6 +20,8 @@ function loadDemo() {
 	frac2.top.children.push(new Symbol('2', SANS_SERIF));
 	frac2.bottom.children.push(new Symbol('3', SANS_SERIF));
 	frac.bottom.children.push(frac2);
+	frac.bottom.children.push(new Symbol('  \u2212  ', SANS_SERIF));
+	frac.bottom.children.push(new Symbol('1', SANS_SERIF));
 	container.children.push(frac);
 	
 	frac = new Fraction();

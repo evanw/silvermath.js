@@ -19,6 +19,7 @@ function getMouse(e, element) {
 	};
 }
 
+// This is for testing, and will change into an API by the release version
 function main() {
 	var canvas = document.createElement('canvas');
 	document.body.appendChild(canvas);
@@ -56,6 +57,30 @@ function main() {
 			dragging = false;
 			draw();
 		}
+	};
+	document.onkeypress = function(e) {
+		core.insertSymbol(String.fromCharCode(e.charCode || e.keyCode));
+		draw();
+		e.preventDefault();
+	};
+	
+	var BACKSPACE = 8;
+	var DELETE = 46;
+	var LEFT = 37;
+	var RIGHT = 39;
+	var HOME = 36;
+	var END = 35;
+	
+	document.onkeydown = function(e) {
+		if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
+		else if (e.keyCode == DELETE) core.removeNodeDelta(1);
+		else if (e.keyCode == LEFT) core.moveCursorDelta(-1);
+		else if (e.keyCode == RIGHT) core.moveCursorDelta(1);
+		else if (e.keyCode == HOME) core.moveCursorDelta(Number.NEGATIVE_INFINITY);
+		else if (e.keyCode == END) core.moveCursorDelta(Number.POSITIVE_INFINITY);
+		else return;
+		draw();
+		e.preventDefault();
 	};
 }
 
