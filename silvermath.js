@@ -5,40 +5,59 @@ var exports = {};
 function loadDemo() {
 	var container = new Container();
 
-	container.children.push(new Symbol('2', SANS_SERIF));
-	container.children.push(new Symbol('x', SERIF | ITALIC));
-	container.children.push(new Symbol('  +  ', SANS_SERIF));
-	container.children.push(new Symbol('3', SANS_SERIF));
-	container.children.push(new Symbol('y', SERIF | ITALIC));
-	container.children.push(new Symbol('  =  ', SANS_SERIF));
-	container.children.push(new Symbol('0', SANS_SERIF));
-	container.children.push(new Symbol('  \u2212  ', SANS_SERIF));
+	container.children.push(new Character('s', SERIF | ITALIC));
+	container.children.push(new Character('i', SERIF | ITALIC));
+	container.children.push(new Character('n', SERIF | ITALIC));
+	container.children.push(new Character('(', SANS_SERIF));
+	container.children.push(new Character('x', SERIF | ITALIC));
+	container.children.push(new Character(')', SANS_SERIF));
+	container.children.push(new Character('+', SANS_SERIF));
+	container.children.push(new Character('{', SANS_SERIF));
+	container.children.push(new Character(Symbol.minus, SANS_SERIF));
+	container.children.push(new Character('2', SANS_SERIF));
+	container.children.push(new Character(Symbol.cdot, SANS_SERIF));
+	container.children.push(new Character('x', SERIF | ITALIC));
+	container.children.push(new Character(',', SANS_SERIF));
+	container.children.push(new Character(Symbol.minus, SANS_SERIF));
+	container.children.push(new Character('3', SANS_SERIF));
+	container.children.push(new Character(Symbol.cdot, SANS_SERIF));
+	container.children.push(new Character('y', SERIF | ITALIC));
+	container.children.push(new Character('}', SANS_SERIF));
+
+	container.children.push(new Character('=', SANS_SERIF));
+	container.children.push(new Character('{', SANS_SERIF));
+	container.children.push(new Character('1', SANS_SERIF));
+	container.children.push(new Character(Symbol.minus, SANS_SERIF));
+	container.children.push(new Character('(', SANS_SERIF));
+	container.children.push(new Character('1', SANS_SERIF));
+	container.children.push(new Character('+', SANS_SERIF));
 	
 	var frac = new Fraction();
-	frac.top.children.push(new Symbol('1', SANS_SERIF));
-	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
-	frac.top.children.push(new Symbol('2', SANS_SERIF));
-	frac.bottom.children.push(new Symbol('5', SANS_SERIF));
-	frac.bottom.children.push(new Symbol('  \u2212  ', SANS_SERIF));
-	var frac2 = new Fraction();
-	frac2.top.children.push(new Symbol('2', SANS_SERIF));
-	frac2.bottom.children.push(new Symbol('3', SANS_SERIF));
-	frac.bottom.children.push(frac2);
-	frac.bottom.children.push(new Symbol('  \u2212  ', SANS_SERIF));
-	frac.bottom.children.push(new Symbol('1', SANS_SERIF));
+	frac.top.children.push(new Character(Symbol.minus, SANS_SERIF));
+	frac.top.children.push(new Character('1', SANS_SERIF));
+	frac.top.children.push(new Character('+', SANS_SERIF));
+	frac.top.children.push(new Character('2', SANS_SERIF));
+	frac.bottom.children.push(new Character('5', SANS_SERIF));
+	frac.bottom.children.push(new Character(Symbol.minus, SANS_SERIF));
+	frac.bottom.children.push(new Character('1', SANS_SERIF));
 	container.children.push(frac);
 	
+	container.children.push(new Character(')', SANS_SERIF));
+	container.children.push(new Character(Symbol.cdot, SANS_SERIF));
+	
 	frac = new Fraction();
-	frac.top.children.push(new Symbol('4', SANS_SERIF));
-	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
-	frac.top.children.push(new Symbol('7', SANS_SERIF));
-	frac.top.children.push(new Symbol('  +  ', SANS_SERIF));
+	frac.top.children.push(new Character('4', SANS_SERIF));
+	frac.top.children.push(new Character('+', SANS_SERIF));
+	frac.top.children.push(new Character('7', SANS_SERIF));
+	frac.top.children.push(new Character('+', SANS_SERIF));
 	frac2 = new Fraction();
-	frac2.top.children.push(new Symbol('2', SANS_SERIF));
-	frac2.bottom.children.push(new Symbol('3', SANS_SERIF));
+	frac2.top.children.push(new Character('2', SANS_SERIF));
+	frac2.bottom.children.push(new Character('3', SANS_SERIF));
 	frac.top.children.push(frac2);
-	frac.bottom.children.push(new Symbol('2', SANS_SERIF));
+	frac.bottom.children.push(new Character('2', SANS_SERIF));
 	container.children.push(frac);
+
+	container.children.push(new Character('}', SANS_SERIF));
 
 	return container;
 }
@@ -77,13 +96,11 @@ EquationCore.prototype.mouseReleased = function(x, y) {
 EquationCore.prototype.insertSymbol = function(text) {
 	// Special-case some symbols
 	var useLetterFont = /^[^0-9=\+\-\*\/\(\)\{\}\[\]]+$/.test(text);
-	if (text == '-') text = '  \u2212  ';
-	else if (text == '+') text = '  +  ';
-	else if (text == '=') text = '  =  ';
-	else if (text == '*') text = '\u2219';
+	if (text == '-') text = Symbol.minus;
+	else if (text == '*') text = Symbol.cdot;
 
 	// Replace the selection with a new symbol
-	var symbol = new Symbol(text, useLetterFont ? SERIF | ITALIC : SANS_SERIF);
+	var symbol = new Character(text, useLetterFont ? SERIF | ITALIC : SANS_SERIF);
 	var range = new Range(this.container, this.cursorIndex, this.selectionIndex);
 	range.replaceNodes([ symbol ]);
 	this.cursorIndex = this.selectionIndex = range.maxIndex;
@@ -186,10 +203,14 @@ function getMouse(e, element) {
 
 // This is for testing, and will change into an API by the release version
 function main() {
+	var div = document.createElement('div');
 	var canvas = document.createElement('canvas');
-	document.body.appendChild(canvas);
+	div.className = 'editor';
+	div.appendChild(canvas);
+	document.body.appendChild(div);
 	canvas.width = 400;
 	renderer = new CanvasRenderer(canvas);
+	renderer.subpixel = true;
 	
 	core = new EquationCore();
 	core.setContainer(loadDemo());
@@ -224,9 +245,11 @@ function main() {
 		}
 	};
 	document.onkeypress = function(e) {
-		core.insertSymbol(String.fromCharCode(e.charCode || e.keyCode));
-		draw();
-		e.preventDefault();
+		if (!e.ctrlKey && !e.metaKey && !e.altKey && e.charCode) {
+			core.insertSymbol(String.fromCharCode(e.charCode));
+			draw();
+			e.preventDefault();
+		}
 	};
 	
 	var BACKSPACE = 8;
@@ -237,19 +260,21 @@ function main() {
 	var END = 35;
 	
 	document.onkeydown = function(e) {
-		var valid = true;
-		if (e.shiftKey) core.isKeyboardSelect = true;
-		if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
-		else if (e.keyCode == DELETE) core.removeNodeDelta(1);
-		else if (e.keyCode == LEFT) core.moveCursorRelative(-1);
-		else if (e.keyCode == RIGHT) core.moveCursorRelative(1);
-		else if (e.keyCode == HOME) core.moveCursorAbsolute(0);
-		else if (e.keyCode == END) core.moveCursorAbsolute(core.getLastIndex());
-		else valid = false;
-		core.isKeyboardSelect = false;
-		if (valid) {
-			draw();
-			e.preventDefault();
+		if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+			var valid = true;
+			if (e.shiftKey) core.isKeyboardSelect = true;
+			if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
+			else if (e.keyCode == DELETE) core.removeNodeDelta(1);
+			else if (e.keyCode == LEFT) core.moveCursorRelative(-1);
+			else if (e.keyCode == RIGHT) core.moveCursorRelative(1);
+			else if (e.keyCode == HOME) core.moveCursorAbsolute(0);
+			else if (e.keyCode == END) core.moveCursorAbsolute(core.getLastIndex());
+			else valid = false;
+			core.isKeyboardSelect = false;
+			if (valid) {
+				draw();
+				e.preventDefault();
+			}
 		}
 	};
 }
@@ -316,6 +341,23 @@ function totalAnchorCount(container, lo, hi) {
 	}
 	return total;
 }
+
+// src/data/symbol.js
+var Symbol = {
+	// Common math symbols
+	minus: '\u2212',
+	cdot: '\u2219',
+	times: '\u00D7',
+
+	// Lower-case greek characters
+	sigma: '\u03C3',
+
+	// Upper-case greek characters
+	Sigma: '\u03A3'
+};
+
+var LEFT_BRACKETS = { '(': 0, '[': 0, '{': 0 };
+var RIGHT_BRACKETS = { ')': 0, ']': 0, '}': 0 };
 
 // src/interaction/anchor.js
 function createAnchor(node) {
@@ -434,6 +476,83 @@ Box.prototype.getHeight = function() {
 	return this.heightAboveMidline + this.heightBelowMidline;
 };
 
+// src/model/character.js
+function Character(text, fontStyle) {
+	this.box = new Box();
+	this.text = text;
+	this.fontStyle = fontStyle;
+	this.padding = 0;
+}
+
+Character.prototype.anchorCount = 0;
+
+Character.prototype.updateAnchorCount = function() {
+};
+
+Character.prototype.calculateSize = function(renderer, parent, parentIndex) {
+	renderer.fontStyle = this.fontStyle;
+	var size = renderer.measureText(this.text);
+	this.box.width = size.width;
+	this.box.heightAboveMidline = size.heightAboveMidline;
+	this.box.heightBelowMidline = size.heightBelowMidline;
+
+	this.padding = 0;
+	if (this.text == '+' || this.text == Symbol.minus) {
+		// Search for the previous character in case it's a left bracket
+		if (parentIndex > 0) {
+			this.padding = 10;
+			var prev = parent.children[parentIndex - 1];
+			if (prev instanceof Character && (prev.text in LEFT_BRACKETS || prev.text == ',' || prev.text == '=')) {
+				this.padding = 0;
+			}
+		}
+	} else if (this.text in RIGHT_BRACKETS) {
+		// Try to pair each closing bracket with its opening bracket
+		var depth = 0;
+		var maxHeight = Math.max(this.box.heightAboveMidline, this.box.heightBelowMidline);
+		for (var i = parentIndex; i >= 0; i--) {
+			var child = parent.children[i];
+			maxHeight = Math.max(maxHeight, child.box.heightAboveMidline);
+			maxHeight = Math.max(maxHeight, child.box.heightBelowMidline);
+			if (child instanceof Character) {
+				if (child.text in LEFT_BRACKETS) {
+					if (--depth == 0) {
+						this.box.heightAboveMidline = child.box.heightAboveMidline = maxHeight;
+						this.box.heightBelowMidline = child.box.heightBelowMidline = maxHeight;
+						break;
+					}
+				} else if (child.text in RIGHT_BRACKETS) {
+					depth++;
+				}
+			}
+		}
+	} else if (this.text == '=') {
+		this.padding = 10;
+	} else if (this.text == ',') {
+		this.box.width += 10;
+	} else if (this.text == Symbol.times) {
+		this.padding = 5;
+	} else if (this.text == Symbol.cdot) {
+		this.padding = 2;
+	}
+	this.box.width += 2 * this.padding;
+};
+
+Character.prototype.layout = function(x, y) {
+	this.box.x = x;
+	this.box.y = y;
+};
+
+Character.prototype.render = function(renderer) {
+	renderer.fontStyle = this.fontStyle;
+	var size = renderer.measureText(this.text);
+	renderer._context.save();
+	renderer._context.translate(this.box.x + this.padding, this.box.y);
+	renderer._context.scale(1, this.box.getHeight() / (size.heightAboveMidline + size.heightBelowMidline));
+	renderer.drawText(this.text, 0, 0);
+	renderer._context.restore();
+};
+
 // src/model/container.js
 function Container() {
 	this.box = new Box();
@@ -455,7 +574,7 @@ Container.prototype.calculateSize = function(renderer) {
 	this.box.heightBelowMidline = 0;
 	for (var i = 0; i < this.children.length; i++) {
 		var child = this.children[i];
-		child.calculateSize(renderer);
+		child.calculateSize(renderer, this, i);
 		this.box.width += child.box.width;
 		this.box.heightAboveMidline = Math.max(this.box.heightAboveMidline, child.box.heightAboveMidline);
 		this.box.heightBelowMidline = Math.max(this.box.heightBelowMidline, child.box.heightBelowMidline);
@@ -520,36 +639,6 @@ Fraction.prototype.render = function(renderer) {
 	renderer.drawLine(this.box.x + 2, this.box.y + this.box.heightAboveMidline, this.box.x + this.box.width - 2, this.box.y + this.box.heightAboveMidline);
 };
 
-// src/model/symbol.js
-function Symbol(text, fontStyle) {
-	this.box = new Box();
-	this.text = text;
-	this.fontStyle = fontStyle;
-}
-
-Symbol.prototype.anchorCount = 0;
-
-Symbol.prototype.updateAnchorCount = function() {
-};
-
-Symbol.prototype.calculateSize = function(renderer) {
-	renderer.fontStyle = this.fontStyle;
-	var size = renderer.measureText(this.text);
-	this.box.width = size.width;
-	this.box.heightAboveMidline = size.heightAboveMidline;
-	this.box.heightBelowMidline = size.heightBelowMidline;
-};
-
-Symbol.prototype.layout = function(x, y) {
-	this.box.x = x;
-	this.box.y = y;
-};
-
-Symbol.prototype.render = function(renderer) {
-	renderer.fontStyle = this.fontStyle;
-	renderer.drawText(this.text, this.box.x, this.box.y);
-};
-
 // src/renderers/canvasrenderer.js
 function CanvasRenderer(canvasElement) {
 	this._context = canvasElement.getContext('2d');
@@ -563,7 +652,8 @@ CanvasRenderer.prototype.begin = function(width, height) {
 	this._context.canvas.height = height;
 	this._context.save();
 	if (this.subpixel) this._context.scale(3, 1);
-	this._context.clearRect(0, 0, width, height);
+	this._context.fillStyle = 'white';
+	this._context.fillRect(0, 0, width, height);
 };
 
 CanvasRenderer.prototype.drawText = function(text, x, y) {
@@ -612,8 +702,10 @@ CanvasRenderer.prototype.end = function() {
 		for (var y = 0, i = 0; y < newData.height; y++) {
 			for (var x = 0; x < newData.width; x++, i++) {
 				for (var c = 0; c < 3; c++) {
-					var j = i * 12 + c * 4 + 3;
-					newData.data[i * 4 + c] = 255 - ((x > 0 ? oldData.data[j - 4] : 0) + oldData.data[j] + (x < newData.width - 1 ? oldData.data[j + 4] : 0)) / 3;
+					var j = i * 12 + c * 4 + c;
+					var left = (x > 0) ? oldData.data[j - 4] : oldData.data[j];
+					var right = (x < newData.width - 1) ? oldData.data[j + 4] : oldData.data[j];
+					newData.data[i * 4 + c] = (left + oldData.data[j] + right) / 3;
 				}
 				newData.data[i * 4 + 3] = 255;
 			}
