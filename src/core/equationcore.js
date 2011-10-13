@@ -31,13 +31,11 @@ EquationCore.prototype.mouseReleased = function(x, y) {
 EquationCore.prototype.insertSymbol = function(text) {
 	// Special-case some symbols
 	var useLetterFont = /^[^0-9=\+\-\*\/\(\)\{\}\[\]]+$/.test(text);
-	if (text == '-') text = '  \u2212  ';
-	else if (text == '+') text = '  +  ';
-	else if (text == '=') text = '  =  ';
-	else if (text == '*') text = '\u2219';
+	if (text == '-') text = Symbol.minus;
+	else if (text == '*') text = Symbol.cdot;
 
 	// Replace the selection with a new symbol
-	var symbol = new Symbol(text, useLetterFont ? SERIF | ITALIC : SANS_SERIF);
+	var symbol = new Character(text, useLetterFont ? SERIF | ITALIC : SANS_SERIF);
 	var range = new Range(this.container, this.cursorIndex, this.selectionIndex);
 	range.replaceNodes([ symbol ]);
 	this.cursorIndex = this.selectionIndex = range.maxIndex;

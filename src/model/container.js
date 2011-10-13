@@ -18,7 +18,7 @@ Container.prototype.calculateSize = function(renderer) {
 	this.box.heightBelowMidline = 0;
 	for (var i = 0; i < this.children.length; i++) {
 		var child = this.children[i];
-		child.calculateSize(renderer);
+		child.calculateSize(renderer, this, i);
 		this.box.width += child.box.width;
 		this.box.heightAboveMidline = Math.max(this.box.heightAboveMidline, child.box.heightAboveMidline);
 		this.box.heightBelowMidline = Math.max(this.box.heightBelowMidline, child.box.heightBelowMidline);

@@ -21,10 +21,14 @@ function getMouse(e, element) {
 
 // This is for testing, and will change into an API by the release version
 function main() {
+	var div = document.createElement('div');
 	var canvas = document.createElement('canvas');
-	document.body.appendChild(canvas);
+	div.className = 'editor';
+	div.appendChild(canvas);
+	document.body.appendChild(div);
 	canvas.width = 400;
 	renderer = new CanvasRenderer(canvas);
+	renderer.subpixel = true;
 	
 	core = new EquationCore();
 	core.setContainer(loadDemo());
@@ -59,9 +63,11 @@ function main() {
 		}
 	};
 	document.onkeypress = function(e) {
-		core.insertSymbol(String.fromCharCode(e.charCode || e.keyCode));
-		draw();
-		e.preventDefault();
+		if (!e.ctrlKey && !e.metaKey && !e.altKey && e.charCode) {
+			core.insertSymbol(String.fromCharCode(e.charCode));
+			draw();
+			e.preventDefault();
+		}
 	};
 	
 	var BACKSPACE = 8;
@@ -72,19 +78,21 @@ function main() {
 	var END = 35;
 	
 	document.onkeydown = function(e) {
-		var valid = true;
-		if (e.shiftKey) core.isKeyboardSelect = true;
-		if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
-		else if (e.keyCode == DELETE) core.removeNodeDelta(1);
-		else if (e.keyCode == LEFT) core.moveCursorRelative(-1);
-		else if (e.keyCode == RIGHT) core.moveCursorRelative(1);
-		else if (e.keyCode == HOME) core.moveCursorAbsolute(0);
-		else if (e.keyCode == END) core.moveCursorAbsolute(core.getLastIndex());
-		else valid = false;
-		core.isKeyboardSelect = false;
-		if (valid) {
-			draw();
-			e.preventDefault();
+		if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+			var valid = true;
+			if (e.shiftKey) core.isKeyboardSelect = true;
+			if (e.keyCode == BACKSPACE) core.removeNodeDelta(-1);
+			else if (e.keyCode == DELETE) core.removeNodeDelta(1);
+			else if (e.keyCode == LEFT) core.moveCursorRelative(-1);
+			else if (e.keyCode == RIGHT) core.moveCursorRelative(1);
+			else if (e.keyCode == HOME) core.moveCursorAbsolute(0);
+			else if (e.keyCode == END) core.moveCursorAbsolute(core.getLastIndex());
+			else valid = false;
+			core.isKeyboardSelect = false;
+			if (valid) {
+				draw();
+				e.preventDefault();
+			}
 		}
 	};
 }
